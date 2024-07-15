@@ -1,5 +1,31 @@
 #/usr/bin/bash
 ##### Whole Exome Sequence Variant Calling Pipeline #####
+#Human genome for Variant calling and annotation:
+#Download "GCF_000001405.39_GRCh38.p13_genomic.fna.gz" file
+wget https://ftp-trace.ncbi.nih.gov/genomes/refseq/vertebrate_mammalian/Homo_sapiens/latest_assembly_versions/GCF_000001405.39_GRCh38.p13/GCF_000001405.39_GRCh38.p13_genomic.fna.gz
+#Build index files for variant calling using;
+mkdir index
+mv [path to GCF_000001405.39_GRCh38.p13_genomic.fna.gz] [path to index]
+rename GCF_000001405.39_GRCh38.p13_genomic.fna.gz human_ref38_patch13.fna
+bwa index human_ref38_patch13.fna
+sudo samtools faidx human_ref38_patch13.fna
+/path/to/gatk-4.1.2.0/gatk CreateSequenceDictionary -R human_ref38_patch13.fna -O human_ref38_patch13.dict
+#Download dbSNP
+https://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh38p7/VCF/00-All.vcf.gz (for dbSNP151)
+wget --continue --progress=dot:mega --tries=0 http://ftp.ensembl.org/pub/data_files/homo_sapiens/GRCh38/variation_genotype/dbSNP154_ALFA_GRCh38_20210727.vcf.gz (for dbSNP154)
+#After download always check for chr/NC notation; change accordingly.
+#In the vcf file replace chr with NC
+bash chr-NC-dbSNP.sh
+#To convert number value to chr_values of dumb.vcf file: (replace integer in first column)
+perl -pe 's/^([^#])/chr\1/' dbsnp151.vcf | bash chr-NC-dbSNP.sh > dbsnp151_NC.vcf
+#To create index file of dbsnp.vcf
+/path/to/gatk-4.1.2.0/gatk IndexFeatureFile -I dbsnp151.vcf 
+/path/to/gatk-4.1.2.0/gatk IndexFeatureFile -I [path to dbsnp154.vcf]
+
+
+
+
+
 echo "Welcome to Exome variant calling Pipeline"
 NUMCPUS=30
 SOFTWAREDIR="/home/cml/Downloads/gatk-4.2.6.1"
