@@ -129,5 +129,7 @@ for file in {*T*_rr.bam,*P*_rr.bam}; do
     echo [$stime] "   * BuildBamIndex"
     $SOFTWAREDIR/gatk --java-options "-Xmx200G" BuildBamIndex --INPUT $BASEDIRDATA/${sample}_sm.bam
     	
-    echo [$stime] "   * MoveBamIndex"
+    echo [$stime] "   * Remove rr-files"
+    rm $BASEDIRDATA/${sample}_rr.bam
+    rm $BASEDIRDATA/${sample}_rr.bai
 done
